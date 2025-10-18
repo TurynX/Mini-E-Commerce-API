@@ -5,3 +5,9 @@ declare module "fastify" {
     authenticate: (req: any, reply: any) => Promise<void>;
   }
 }
+
+declare module "fastify" {
+  interface FastifyInstance {
+    isAdmin: (req: any, reply: any) => Promise<void>;
+  }
+}
