@@ -13,7 +13,6 @@ model User {
   email     String     @unique
   password  String
   role  String @default("user") 
-  orders    Order[]
   cartItems CartItem[]
 }
 
@@ -24,14 +23,6 @@ model Product {
   price    Float
 }
 
-model Order {
-  id         Int      @id @default(autoincrement())
-  userId     Int
-  total      Float
-  createdAt  DateTime @default(now())
-  productIds Json // ✅ Stores array like [2, 3, 5]
-  user       User     @relation(fields: [userId], references: [id],onDelete: Cascade)
-}
 
 model CartItem {
   id        Int     @id @default(autoincrement())

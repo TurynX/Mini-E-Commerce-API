@@ -15,11 +15,23 @@ export async function handleCreateProducts(
   req: FastifyRequest,
   reply: FastifyReply
 ) {
-  const { name, quantity, price } = addProductBodySchema.parse(req.body);
+  const result = addProductBodySchema.safeParse(req.body);
+
+  if (!result.success) {
+    return reply.status(400).send({
+      error: "ValidationError",
+      details: result.error.format(),
+    });
+  }
+
+  const { name, quantity, price } = result.data;
 
   const product = await createProduct(name, quantity, price);
 
-  return reply.status(201).send(product);
+  return reply.status(201).send({
+    message: "Product created successfully",
+    product,
+  });
 }
 
 export async function handleUpdateProducts(
@@ -29,13 +41,23 @@ export async function handleUpdateProducts(
   const { id } = req.params as { id: string };
   const productId = Number(id);
 
-  const { name, quantity, price } = updateProductBodySchema.parse(req.body);
+  const result = updateProductBodySchema.safeParse(req.body);
+
+  if (!result.success) {
+    return reply.status(400).send({
+      error: "ValidationError",
+      details: result.error.format(),
+    });
+  }
+
+  const { name, quantity, price } = result.data;
 
   if (name === undefined && quantity === undefined && price === undefined) {
-    return reply
-      .status(400)
-      .send({ message: "Send at least one field to update" });
+    return reply.status(400).send({
+      message: "Send at least one field to update",
+    });
   }
+
   const data: UpdateProductData = {};
   if (name !== undefined) data.name = name;
   if (quantity !== undefined) data.quantity = quantity;
@@ -44,10 +66,15 @@ export async function handleUpdateProducts(
   const updatedProduct = await updateProduct(productId, data);
 
   if (!updatedProduct) {
-    return reply.status(404).send({ message: "Product does not exist" });
+    return reply.status(404).send({
+      message: "Product does not exist",
+    });
   }
 
-  return reply.send(updatedProduct);
+  return reply.send({
+    message: "Product updated successfully",
+    product: updatedProduct,
+  });
 }
 
 export async function handleDeleteProducts(
@@ -56,5 +83,17 @@ export async function handleDeleteProducts(
 ) {
   const { id } = req.params as { id: string };
   const productId = Number(id);
+
   const product = await deleteProduct(productId);
+
+  if (!product) {
+    return reply.status(404).send({
+      message: "Product not found",
+    });
+  }
+
+  return reply.send({
+    message: "Product deleted successfully",
+    product,
+  });
 }

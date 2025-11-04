@@ -1,4 +1,4 @@
-import z from "zod";
+import { z } from "zod";
 
 export const registerBodySchema = z.object({
   name: z.string(),
@@ -34,3 +34,11 @@ export const createCartSchema = z.object({
 export const deleteUserSchema = z.object({
   userId: z.number(),
 });
+
+export type RegisterBody = z.infer<typeof registerBodySchema>;
+export type LoginBody = z.infer<typeof loginBodySchema>;
+export type AddProductBody = z.infer<typeof addProductBodySchema>;
+export type UpdateProductBody = z.infer<typeof updateProductBodySchema>;
+export type OrderBody = z.infer<typeof orderBodySchema>;
+export type CreateCartBody = z.infer<typeof createCartSchema>;
+export type DeleteUserBody = z.infer<typeof deleteUserSchema>;
