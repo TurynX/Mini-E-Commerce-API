@@ -6,11 +6,12 @@ const prisma = new PrismaClient();
 export async function registerUser(
   name: string,
   email: string,
-  password: string
+  password: string,
+  reply: any
 ) {
   const exists = await prisma.user.findUnique({ where: { email } });
 
-  if (exists) return null;
+  if (exists) return reply.status(409).send({ error: "E-mail already exists" });
 
   const hashed = await bcrypt.hash(password, 6);
 
@@ -19,12 +20,18 @@ export async function registerUser(
   });
 }
 
-export async function validateUser(email: string, password: string) {
+export async function validateUser(
+  email: string,
+  password: string,
+  reply: any
+) {
   const user = await prisma.user.findUnique({ where: { email } });
 
-  if (!user) return null;
+  if (!user) return reply.status(401).send({ error: "Invalid credentials" });
 
   const match = await bcrypt.compare(password, user.password);
 
-  return match ? user : null;
+  return match
+    ? user
+    : reply.status(401).send({ error: "Invalid credentials" });
 }

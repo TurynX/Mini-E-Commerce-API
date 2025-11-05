@@ -2,14 +2,14 @@ import type { FastifyReply, FastifyRequest } from "fastify";
 import {
   addProductBodySchema,
   updateProductBodySchema,
-} from "../schemas/schema.js";
+} from "../schemas/schema.ts";
 
 import {
   createProduct,
   deleteProduct,
   updateProduct,
-} from "../services/products.service.js";
-import type { UpdateProductData } from "../Types/product.js";
+} from "../services/products.service.ts";
+import type { UpdateProductData } from "../Types/product.ts";
 
 export async function handleCreateProducts(
   req: FastifyRequest,
@@ -73,7 +73,7 @@ export async function handleUpdateProducts(
 
   return reply.send({
     message: "Product updated successfully",
-    product: updatedProduct,
+    updatedProduct,
   });
 }
 
@@ -88,12 +88,9 @@ export async function handleDeleteProducts(
 
   if (!product) {
     return reply.status(404).send({
-      message: "Product not found",
+      message: "Product does not exist",
     });
   }
 
-  return reply.send({
-    message: "Product deleted successfully",
-    product,
-  });
+  return reply.send({ message: "Product deleted successfully", product });
 }

@@ -17,11 +17,13 @@ export async function payment(userId: number, reply: FastifyReply) {
   });
 
   if (!user) {
-    return reply.send({ error: "Cart does not found" });
+    return null;
   }
   const amount = Math.round(user.total * 100);
   if (amount <= 50) {
-    return reply.status(400).send({ error: "Value much low" });
+    return reply
+      .status(400)
+      .send({ error: "Amount must be greater than 50 cents" });
   }
   console.log(amount);
 
@@ -31,7 +33,7 @@ export async function payment(userId: number, reply: FastifyReply) {
       currency: "usd",
       metadata: { userId: userId.toString() },
     });
-    return reply.send({ clientSecret: paymentIntent.client_secret });
+    return { clientSecret: paymentIntent.client_secret };
   } catch (err: any) {
     reply.status(500).send({ error: err.message });
   }

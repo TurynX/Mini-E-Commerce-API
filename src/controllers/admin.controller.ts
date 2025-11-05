@@ -1,6 +1,6 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
-import { deleteUserSchema } from "../schemas/schema.js";
-import { deleteUser } from "../services/admin.services.js";
+import { deleteUserSchema } from "../schemas/schema.ts";
+import { deleteUser } from "../services/admin.services.ts";
 
 export async function handleAdminManage(
   req: FastifyRequest,
@@ -17,7 +17,7 @@ export async function handleAdminManage(
 
   const { userId } = result.data;
 
-  const user = await deleteUser(userId);
+  const user = await deleteUser(userId, reply);
 
   return reply.send({
     message: "User deleted successfully",

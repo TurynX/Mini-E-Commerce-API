@@ -1,11 +1,11 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
-import { createCartSchema } from "../schemas/schema.js";
+import { createCartSchema } from "../schemas/schema.ts";
 import {
   createCart,
   getCartFromUser,
   removeFromCart,
-} from "../services/cart.services.js";
-import type { JwtUser } from "../Types/jwt.js";
+} from "../services/cart.services.ts";
+import type { JwtUser } from "../Types/jwt.ts";
 
 export async function handleCreateCart(
   req: FastifyRequest,
@@ -17,9 +17,7 @@ export async function handleCreateCart(
   const result = createCartSchema.parse(req.body);
 
   if (!result) {
-    return reply.status(400).send({
-      error: "ValidationError",
-    });
+    return reply.status(400).send({ message: "Invalid request body" });
   }
 
   const productIds = result.productIds;
@@ -27,13 +25,10 @@ export async function handleCreateCart(
   const cart = await createCart(userId, productIds);
 
   if (!cart) {
-    return reply.status(500).send({ message: "Error creating cart" });
+    return reply.status(500).send({ message: "Something went wrong" });
   }
 
-  return reply.send({
-    message: "Cart created successfully",
-    cart,
-  });
+  return reply.send({ message: "Cart created successfully", cart });
 }
 export async function handleRemoveProductsCart(
   req: FastifyRequest,
@@ -48,10 +43,12 @@ export async function handleRemoveProductsCart(
   const remove = await removeFromCart(userId, productIds);
 
   if (!remove) {
-    throw new Error("Something wrong");
+    reply.status(500).send({ message: "Something went wrong" });
   }
-
-  return;
+  return reply.send({
+    message: "Products removed successfully from cart",
+    remove,
+  });
 }
 
 export async function handleGetCartFromUser(
@@ -64,7 +61,7 @@ export async function handleGetCartFromUser(
   const cart = await getCartFromUser(userId);
 
   return reply.send({
-    message: "Cart retrieved successfully",
+    message: "Cart fetched successfully",
     cart,
   });
 }

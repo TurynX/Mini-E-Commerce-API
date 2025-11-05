@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import type { UpdateProductData } from "../Types/product.js";
+import type { UpdateProductData } from "../Types/product.ts";
 const prisma = new PrismaClient();
 
 export async function createProduct(
@@ -7,13 +7,21 @@ export async function createProduct(
   quantity: number,
   price: number
 ) {
+  const existingProduct = await prisma.product.findFirst({ where: { name } });
+
+  if (existingProduct) {
+    throw new Error("Product with this name already exists");
+  }
+
   return prisma.product.create({ data: { name, quantity, price } });
 }
 
 export async function updateProduct(id: number, data: UpdateProductData) {
   const product = await prisma.product.findUnique({ where: { id } });
 
-  if (!product) return null;
+  if (!product) {
+    throw new Error("Product not found");
+  }
 
   return prisma.product.update({
     where: { id },
@@ -25,10 +33,10 @@ export async function deleteProduct(id: number) {
   const exists = await prisma.product.findUnique({ where: { id } });
 
   if (!exists) {
-    return null;
+    throw new Error("Product not found");
   }
 
-  await prisma.product.delete({
+  return await prisma.product.delete({
     where: { id },
   });
 }

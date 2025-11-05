@@ -1,0 +1,295 @@
+openapi: 3.0.0
+info:
+  title: Mini E-Commerce API
+  version: 1.0.0
+  description: API for user registration, login, product management, orders, and cart operations.
+  contact:
+    name: TurynX
+    email: your@email.com
+    url: https://your-site.com
+
+servers:
+  - url: http://localhost:3333
+
+tags:
+  - name: Users
+    description: Operations related to user registration and login
+  - name: Products
+    description: Operations for managing products
+  - name: Orders
+    description: Operations for placing and viewing orders
+  - name: Cart
+    description: Operations for managing the shopping cart
+  - name: Admin
+    description: Admin-only operations
+  - name: Payments
+    description: Payment-related operations
+
+security:
+  - bearerAuth: []
+
+paths:
+  /users/register:
+    post:
+      operationId: registerUser
+      summary: Register a new user
+      description: Creates a new user account.
+      tags: [Users]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, email, password]
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  minLength: 6
+      responses:
+        "201":
+          description: User successfully created
+        "400":
+          description: Invalid input
+
+  /users/login:
+    post:
+      operationId: loginUser
+      summary: Login user
+      description: Authenticates a user and returns a JWT token.
+      tags: [Users]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+      responses:
+        "200":
+          description: Login successful
+        "401":
+          description: Invalid credentials
+
+  /products:
+    get:
+      operationId: listProducts
+      summary: List all products
+      description: Returns a list of all available products.
+      tags: [Products]
+      responses:
+        "200":
+          description: Array of products
+    post:
+      operationId: addProduct
+      summary: Add a new product
+      description: Adds a new product to the catalog.
+      tags: [Products]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, price, quantity]
+              properties:
+                name:
+                  type: string
+                price:
+                  type: number
+                  minimum: 0
+                quantity:
+                  type: integer
+                  minimum: 0
+      responses:
+        "201":
+          description: Product added
+        "400":
+          description: Invalid product data
+
+  /products/{id}:
+    put:
+      operationId: updateProduct
+      summary: Update a product
+      description: Updates product details.
+      tags: [Products]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                price:
+                  type: number
+                  minimum: 0
+      responses:
+        "200":
+          description: Product updated
+        "404":
+          description: Product not found
+    delete:
+      operationId: deleteProduct
+      summary: Delete a product
+      description: Deletes a product by ID.
+      tags: [Products]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Product deleted
+        "404":
+          description: Product not found
+
+  /orders:
+    post:
+      operationId: createOrder
+      summary: Create an order
+      description: Places a new order.
+      tags: [Orders]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [productIds]
+              properties:
+                productIds:
+                  type: array
+                  items:
+                    type: integer
+      responses:
+        "201":
+          description: Order created
+        "400":
+          description: Invalid order data
+
+  /me/orders:
+    get:
+      operationId: getUserOrders
+      summary: Get user's orders
+      description: Retrieves all orders placed by the authenticated user.
+      tags: [Orders]
+      responses:
+        "200":
+          description: List of user's orders
+
+  /cart:
+    get:
+      operationId: getCart
+      summary: Get user's cart
+      description: Retrieves the current contents of the user's cart.
+      tags: [Cart]
+      responses:
+        "200":
+          description: Cart contents
+
+  /cart/add:
+    post:
+      operationId: addToCart
+      summary: Add products to cart
+      description: Adds products to the user's cart.
+      tags: [Cart]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [productIds]
+              properties:
+                productIds:
+                  type: array
+                  items:
+                    type: integer
+      responses:
+        "200":
+          description: Products added to cart
+
+  /cart/remove/product/{id}:
+    delete:
+      operationId: removeFromCart
+      summary: Remove product from cart
+      description: Removes a product from the user's cart.
+      tags: [Cart]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Product removed
+        "404":
+          description: Product not found in cart
+
+  /admin/{userId}:
+    delete:
+      operationId: deleteUserByAdmin
+      summary: Admin deletes user by ID
+      description: Deletes a user account by ID.
+      tags: [Admin]
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: User deleted
+        "404":
+          description: User not found
+
+  /create-payment:
+    post:
+      operationId: createPaymentIntent
+      summary: Create payment intent
+      description: Creates a payment intent for the specified amount.
+      tags: [Payments]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [amount]
+              properties:
+                amount:
+                  type: number
+                  minimum: 0
+      responses:
+        "200":
+          description: Payment intent created
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

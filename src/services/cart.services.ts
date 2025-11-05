@@ -1,6 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import { updateProduct } from "./products.service.js";
-import { createSecureContext } from "tls";
+
 const prisma = new PrismaClient();
 
 export async function createCart(userId: number, productIds: number[]) {

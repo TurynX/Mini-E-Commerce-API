@@ -1,6 +1,6 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
-import { payment } from "../services/payment.services.js";
-import type { JwtUser } from "../Types/jwt.js";
+import { payment } from "../services/payment.services.ts";
+import type { JwtUser } from "../Types/jwt.ts";
 
 export async function handlePayment(req: FastifyRequest, reply: FastifyReply) {
   const id = req.user as JwtUser;
@@ -9,7 +9,7 @@ export async function handlePayment(req: FastifyRequest, reply: FastifyReply) {
   const result = await payment(userId, reply);
 
   if (!result) {
-    return reply.send({ error: "Something wrong" });
+    return reply.status(404).send({ message: "Payment not found" });
   }
 
   return result;
